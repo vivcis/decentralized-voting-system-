@@ -17,18 +17,45 @@ async function main() {
   const token = await ethers.getContractAt("IERC20", tokenAddress, voter);
 
   // ✅ Define ballot details
-  const ballotIndex = 0; // Change based on the ballot
-  const optionIndex = 1; // Index of the option being voted for
-  const tokensPerVote = await votingSystem.tokensPerVote();
+  const ballotIndex = 0; 
+  const optionIndex = 1; 
 
-   // Generate random salt
-  const secretSalt = Math.floor(Math.random() * 1000000);
+  //generate a random secret salt
+  const secretSalt = Math.floor(Math.random() * 1000000); 
 
+  // ✅ Fetch ballot details before voting
+  const ballot = await votingSystem.getBallot(ballotIndex);
+  console.log(`📌 Ballot Details:`, ballot);
+  const startTime = Number(ballot[2]);
+  const duration = Number(ballot[3]);
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  // ✅ Check if voting has started
+  if (currentTime < startTime) {
+    console.error("❌ Voting has not started yet.");
+    return;
+  }
+
+  // ✅ Check if voting has ended
+  if (currentTime > startTime + duration) {
+    console.error("❌ Voting period has ended.");
+    return;
+  }
+
+  // ✅ Check voter balance
   console.log("🔄 Checking voter token balance...");
+  const tokensPerVote = await votingSystem.tokensPerVote();
   const voterBalance = await token.balanceOf(voter.address);
 
   if (voterBalance < tokensPerVote) {
     console.error("❌ Insufficient tokens to vote.");
+    return;
+  }
+
+  // ✅ Check if voter has already voted
+  const hasVoted = await votingSystem.hasVoted(ballotIndex, voter.address);
+  if (hasVoted) {
+    console.error("❌ You have already voted.");
     return;
   }
 
@@ -53,4 +80,3 @@ main().catch((error) => {
   console.error("❌ Script error:", error);
   process.exitCode = 1;
 });
-

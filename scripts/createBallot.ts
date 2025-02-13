@@ -12,17 +12,21 @@ async function main() {
   const votingSystem = await ethers.getContractAt("VotingSystem", votingSystemAddress, deployer);
 
   console.log("🔄 Creating a new ballot...");
-  const options = ["Candidate A", "Candidate B"];
-  const startTime = Math.floor(Date.now() / 1000) + 300; // Starts in 5 minutes
-  const duration = 600; // Voting lasts for 10 minutes
-  const endTime = startTime + duration; // Calculate when voting will end
+  const options = ["Nonso", "Ebuka"];
+
+  // Starts in 5 minutes
+  const startTime = Math.floor(Date.now() / 1000) + 300; 
+
+  // Voting lasts for 10 minutes
+  const duration = 600; 
+  const endTime = startTime + duration; 
 
   console.log(`🕒 Ballot Start Time (Unix): ${startTime}`);
   console.log(`⏳ Voting End Time (Unix): ${endTime}`);
   console.log(`📅 Ballot Start Time (Human Readable): ${new Date(startTime * 1000).toLocaleString()}`);
   console.log(`🏁 Voting End Time (Human Readable): ${new Date(endTime * 1000).toLocaleString()}`);
 
-  const tx = await votingSystem.createBallot("Who should lead?", options, startTime, duration);
+  const tx = await votingSystem.createBallot("Who should lead the class?", options, startTime, duration);
   await tx.wait();
 
   console.log("✅ New ballot created successfully!");
